@@ -1,10 +1,11 @@
 package utils
 
 import (
-	"io"
+	"bytes"
 	"net/http"
 	"net/url"
 	"strings"
+	"io"
 )
 
 func GetAuthTokenFromHeader(header http.Header) string {
@@ -21,27 +22,29 @@ func GetAuthTokenFromHeader(header http.Header) string {
 }
 
 func PrepareRequest(serviceUrl string, r *http.Request) *http.Request {
-	var r2Uri *url.URL
+	var r2Uri = new(url.URL)
+	var r2Headers = make(http.Header)
+	var body = &bytes.Buffer{}
 	serviceUri, err := url.Parse(serviceUrl)
 	if err != nil {
 		return r
 	}
 	{
-		r2Uri = r.URL
 		r2Uri.Scheme = serviceUri.Scheme
 		r2Uri.Host = serviceUri.Host
+		r2Uri.Path = r.URL.Path
 		r2Uri.RawQuery = r.URL.Query().Encode()
 	}
-
-	pr, pw := io.Pipe()
-	go func() {
-		io.Copy(pw, r.Body)
-		pw.Close()
-	}()
-	r2, err := http.NewRequest(r.Method, r2Uri.String(), pr)
+	{
+		for key, val := range r.Header {
+			r2Headers[key] = val
+		}
+	}
+	io.Copy(body,r.Body)
+	r2, err := http.NewRequest(r.Method, r2Uri.String(), body)
 	if err != nil {
 		return r
 	}
-	r2.Header = r.Header
+	r2.Header = r2Headers
 	return r2
 }

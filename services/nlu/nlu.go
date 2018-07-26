@@ -1,7 +1,6 @@
 package nlu
 
 import (
-	"fmt"
 	"github.com/oshankkumar/GatewayOmega/utils"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -15,8 +14,11 @@ var client = &http.Client{}
 
 func (nlu *NluHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r2 := utils.PrepareRequest("http://nlu-dev.aneeda.ai", r)
-	fmt.Println(r2)
-	logrus.WithField("service", "nlu").Infof("forwarding request")
+	logrus.WithFields(logrus.Fields{
+		"service": "nlu",
+		"url":     r2.URL.String(),
+		"headers": r2.Header,
+	}).Infof("forwarding request")
 	resp, err := client.Do(r2)
 	if err != nil {
 		logrus.WithError(err).Errorf("error in forwarding to nlu service")
