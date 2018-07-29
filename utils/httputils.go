@@ -2,10 +2,10 @@ package utils
 
 import (
 	"bytes"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
-	"io"
 )
 
 func GetAuthTokenFromHeader(header http.Header) string {
@@ -40,7 +40,7 @@ func PrepareRequest(serviceUrl string, r *http.Request) *http.Request {
 			r2Headers[key] = val
 		}
 	}
-	io.Copy(body,r.Body)
+	io.Copy(body, r.Body)
 	r2, err := http.NewRequest(r.Method, r2Uri.String(), body)
 	if err != nil {
 		return r

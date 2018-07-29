@@ -1,37 +1,52 @@
 package nlu
 
 import (
-	"github.com/oshankkumar/GatewayOmega/utils"
+	"github.com/oshankkumar/GatewayOmega/client"
+	ghttp "github.com/oshankkumar/GatewayOmega/http"
+	"github.com/oshankkumar/GatewayOmega/services"
 	"github.com/sirupsen/logrus"
-	"io"
+	"github.com/spf13/viper"
 	"net/http"
 )
 
-type NluHandler struct {
+type Nlu struct{}
+
+func newNLUService(opts ...services.SerivceOptionFunc) services.Service {
+	nlu := &Nlu{}
+	opt := &services.ServiceOption{}
+	for _, optFunc := range opts {
+		optFunc(opt)
+	}
+	return nlu
 }
 
-var client = &http.Client{}
+func (n *Nlu) Name() string {
+	return "nlu"
+}
 
-func (nlu *NluHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	r2 := utils.PrepareRequest("http://nlu-dev.aneeda.ai", r)
+func (n *Nlu) Send(r *ghttp.GatewayRequest) (*http.Response, error) {
+	client.Default.Reset()
+	client.Default.Verb(r.Req.Method)
+	client.Default.Base(viper.GetString("services.nlu.addr"))
+	client.Default.Path(r.Req.URL.Path)
+	client.Default.Query(r.Req.URL.Query())
+	client.Default.Header(r.Req.Header)
+	if body, err := r.Body(); err == nil {
+		client.Default.Body(body)
+	}
+	req, err := client.Default.Request()
 	logrus.WithFields(logrus.Fields{
-		"service": "nlu",
-		"url":     r2.URL.String(),
-		"headers": r2.Header,
-	}).Infof("forwarding request")
-	resp, err := client.Do(r2)
+		"service" : "nlu",
+		"url"     : req.URL.String(),
+		"headers" : req.Header,
+	}).Infof("sending request")
 	if err != nil {
-		logrus.WithError(err).Errorf("error in forwarding to nlu service")
-		http.Error(w, err.Error(), http.StatusGatewayTimeout)
-		return
+		return nil, err
 	}
-	logrus.WithFields(logrus.Fields{
-		"status": resp.Status,
-		"header": resp.Header,
-	}).Infof("response recieved")
-	for key, val := range resp.Header {
-		w.Header().Set(key, val[0])
-	}
-	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	return client.Default.Do(req, nil)
+}
+
+func init() {
+	logrus.WithField("service", "nlu").Infof("registering service")
+	services.Register("nlu", newNLUService)
 }

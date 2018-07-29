@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/dghubble/sling"
+	"github.com/spf13/viper"
 	"net/http"
 )
 
@@ -11,7 +12,7 @@ type AuthenticationService struct {
 
 func NewAuthenticationService(client *http.Client) *AuthenticationService {
 	return &AuthenticationService{
-		sling: sling.New().Client(client).Base("https://auth.i.am"),
+		sling: sling.New().Client(client).Base(viper.GetString("services.auth.addr")),
 	}
 }
 

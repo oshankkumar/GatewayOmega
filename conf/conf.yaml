@@ -1,0 +1,12 @@
+services :
+  nlu :
+    addr : "http://nlu-dev.aneeda.ai"
+    name : "nlu"
+  auth :
+    addr : "https://auth.i.am"
+    name : "authentication"
+log :
+  level : "debug"
+env : "dev"
+http:
+  port : "8080"
