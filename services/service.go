@@ -16,9 +16,16 @@ type NewServiceFunc func(...SerivceOptionFunc) Service
 var ServiceFactory = make(map[string]NewServiceFunc)
 
 type ServiceOption struct {
+	Service Service
 }
 
 type SerivceOptionFunc func(*ServiceOption)
+
+func WithService(srv Service)SerivceOptionFunc{
+	return func(option *ServiceOption) {
+		option.Service = srv
+	}
+}
 
 func Register(name string, s NewServiceFunc) {
 	ServiceFactory[name] = s
