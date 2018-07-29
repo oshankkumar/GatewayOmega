@@ -2,7 +2,9 @@ package main
 
 import _ "github.com/oshankkumar/GatewayOmega/config"
 import _ "github.com/oshankkumar/GatewayOmega/log"
+import _ "github.com/oshankkumar/GatewayOmega/tracing"
 import _ "github.com/oshankkumar/GatewayOmega/services/nlu"
+import _ "github.com/oshankkumar/GatewayOmega/services/tracing"
 
 import (
 	"github.com/oshankkumar/GatewayOmega/handlers"

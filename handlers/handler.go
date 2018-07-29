@@ -9,12 +9,16 @@ import (
 )
 
 func NluHandlerFunc(w http.ResponseWriter, r *http.Request) {
-	serviceFunc, err := services.Get("nlu")
+	nluServiceFunc, err := services.Get("nlu")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	service := serviceFunc()
+	service := nluServiceFunc()
+	tracingServiceFunc, err := services.Get("zipkin")
+	if err == nil {
+		service = tracingServiceFunc(services.WithService(service))
+	}
 	resp, err := service.Send(&ghttp.GatewayRequest{Req: r})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

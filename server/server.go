@@ -24,6 +24,7 @@ func NewGatewayServer(addr string) *GatewayServer {
 
 func (g *GatewayServer) Start() error {
 	g.server.Handler = alice.New(
+		middlewares.ZipkinTracing,
 		middlewares.Authentication,
 	).Then(g.Router)
 	return g.server.ListenAndServe()

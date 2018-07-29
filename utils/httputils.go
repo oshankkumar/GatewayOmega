@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -47,4 +48,24 @@ func PrepareRequest(serviceUrl string, r *http.Request) *http.Request {
 	}
 	r2.Header = r2Headers
 	return r2
+}
+
+func GetOutBoundIp() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return ""
+	}
+	return conn.LocalAddr().(*net.UDPAddr).IP.String()
+}
+
+var noAuthPathMap = map[string]bool{
+	"/liveness":  true,
+	"/readiness": true,
+}
+
+func IsNoAuthPath(r *http.Request) bool {
+	if _,ok := noAuthPathMap[r.URL.Path]; ok {
+		return true
+	}
+	return false
 }
