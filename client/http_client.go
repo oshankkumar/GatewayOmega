@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"fmt"
 )
 
 type gatewayClient struct {
@@ -28,10 +29,12 @@ func New() GatewayClient {
 
 func (c *gatewayClient) Reset() {
 	client := c.client
-	c = New().(*gatewayClient)
+	cNew := New().(*gatewayClient)
 	if client != nil {
-		c.client = client
+		cNew.client = client
 	}
+	*c = *cNew
+
 }
 
 func (c *gatewayClient) Verb(m string) {
@@ -51,6 +54,7 @@ func (c *gatewayClient) Query(q url.Values) {
 }
 
 func (c *gatewayClient) Header(h http.Header) {
+	fmt.Println("setting header pre header",c)
 	for key, vals := range h {
 		for _, val := range vals {
 			c.header.Add(key, val)
