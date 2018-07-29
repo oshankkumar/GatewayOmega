@@ -2,9 +2,9 @@ package client
 
 import (
 	"bytes"
+	"io"
 	"net/http"
 	"net/url"
-	"io"
 )
 
 type gatewayClient struct {
@@ -74,12 +74,12 @@ func (c *gatewayClient) Request() (*http.Request, error) {
 		body = bytes.NewBuffer(c.body)
 	}
 
-	req,err := http.NewRequest(c.method, url.String(), body)
+	req, err := http.NewRequest(c.method, url.String(), body)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	req.Header = c.header
-	return req,nil
+	return req, nil
 }
 
 func (c *gatewayClient) Client(httpC *http.Client) {

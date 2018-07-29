@@ -36,9 +36,9 @@ func (n *Nlu) Send(r *ghttp.GatewayRequest) (*http.Response, error) {
 	}
 	req, err := client.Default.Request()
 	logrus.WithFields(logrus.Fields{
-		"service" : "nlu",
-		"url"     : req.URL.String(),
-		"headers" : req.Header,
+		"service": "nlu",
+		"url":     req.URL.String(),
+		"headers": req.Header,
 	}).Infof("sending request")
 	if err != nil {
 		return nil, err
